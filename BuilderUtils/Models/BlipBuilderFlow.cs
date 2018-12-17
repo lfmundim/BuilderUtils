@@ -186,8 +186,15 @@ namespace BuilderUtils.Models
 
         [JsonProperty("gender", NullValueHandling = NullValueHandling.Ignore)]
         public string Gender { get; set; }
+
         [JsonProperty("body", NullValueHandling = NullValueHandling.Ignore)]
         public string Body { get; set; }
+
+        [JsonProperty("expiration", NullValueHandling = NullValueHandling.Ignore)]
+        public int VariableExpiration { get; set; }
+
+        [JsonProperty("to", NullValueHandling = NullValueHandling.Ignore)]
+        public string CommandTo { get; set; }
     }
 
     public partial class ConditionOutput
