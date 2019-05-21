@@ -3,13 +3,11 @@ using System.Collections.Generic;
 using System.Globalization;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
-using Newtonsoft.Json.Linq;
 
 namespace BuilderUtils.Models
 {
     public partial class BlipBuilderFlow
     {
-        //[JsonProperty("onboarding")]
         public BlipBuilderFlow()
         {
             Boxes = new List<Box>();
@@ -121,7 +119,7 @@ namespace BuilderUtils.Models
         [JsonProperty("settings")]
         public CustomActionSettings Settings { get; set; }
 
-        [JsonProperty("$$hashKey")]
+        [JsonProperty("$$hashKey", NullValueHandling = NullValueHandling.Ignore)]
         public string HashKey { get; set; }
     }
 
@@ -160,6 +158,12 @@ namespace BuilderUtils.Models
         [JsonProperty("uri", NullValueHandling = NullValueHandling.Ignore)]
         public string Uri { get; set; }
 
+        [JsonProperty("context", NullValueHandling = NullValueHandling.Ignore)]
+        public RedirectActionContext Context { get; set; }
+
+        [JsonProperty("address", NullValueHandling = NullValueHandling.Ignore)]
+        public string Address { get; set; }
+
         [JsonProperty("responseStatusVariable", NullValueHandling = NullValueHandling.Ignore)]
         public string ResponseStatusVariable { get; set; }
 
@@ -195,6 +199,15 @@ namespace BuilderUtils.Models
 
         [JsonProperty("to", NullValueHandling = NullValueHandling.Ignore)]
         public string CommandTo { get; set; }
+    }
+
+    public partial class RedirectActionContext
+    {
+        [JsonProperty("type", NullValueHandling = NullValueHandling.Ignore)]
+        public string Type { get; set; }
+
+        [JsonProperty("value", NullValueHandling = NullValueHandling.Ignore)]
+        public string Value { get; set; }
     }
 
     public partial class ConditionOutput

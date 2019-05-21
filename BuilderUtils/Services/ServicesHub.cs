@@ -6,7 +6,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 
 namespace BuilderUtils.Services
 {
@@ -18,21 +17,19 @@ namespace BuilderUtils.Services
         {
             _flowFactory = new BlipBuilderFlowFactory();
         }
-        public void CreateOutputHub()
-        {
-            Console.Title = "[BLiP Builder Utils] Creating Output Hub";
-            Console.WriteLine("What is the ID (state.id) of the flow you want to use as a HUB?");
-            var stateId = Console.ReadLine();
-            Console.WriteLine("What is the variable name to be used as the EQUALS conditional?");
-            var conditionalVariable = Console.ReadLine();
-            Console.WriteLine("What is the FULL PATH of the exported .json file?");
-            var path = Console.ReadLine();
-            AddUniversalHubUsingVariable(stateId, conditionalVariable, path);
-        }
 
-        public void CreateOutputHub(bool verbose, string stateId, string conditionalVariable, string path)
+        private static void SaveUpdatedFlow(BlipBuilderFlow flow, string path, string newFileName)
         {
-            AddUniversalHubUsingVariable(stateId, conditionalVariable, path, verbose);
+            var serialized = string.Empty;
+            foreach (var box in flow.Boxes)
+            {
+                var piece = JsonConvert.SerializeObject(box.Content);
+                serialized = serialized + piece.Substring(1, piece.Length - 2) + ",";
+            }
+
+            serialized = "{" + serialized.Substring(0, serialized.Length - 1) + "}";
+            File.WriteAllText(newFileName, serialized);
+            Console.WriteLine($"File saved with Path {newFileName}");
         }
 
         private static void AddUniversalHubUsingVariable(string stateId, string conditionalVariable, string path, bool verbose = false)
@@ -98,17 +95,7 @@ namespace BuilderUtils.Services
                     }
                     flow.ParseProxyIntoFlow();
 
-                    var serialized = string.Empty;
-                    foreach (var box in flow.Boxes)
-                    {
-                        var piece = JsonConvert.SerializeObject(box.Content);
-                        serialized = serialized + piece.Substring(1, piece.Length - 2) + ",";
-                    }
-
-                    serialized = "{" + serialized.Substring(0, serialized.Length - 1) + "}";
-                    var exitName = Path.GetFullPath(path).Replace(Path.GetFileName(path), "") + filename + "EDIT.json";
-                    File.WriteAllText(exitName, serialized);
-                    Console.WriteLine($"File saved with Path {exitName}");
+                    SaveUpdatedFlow(flow, path, Path.GetFullPath(path).Replace(Path.GetFileName(path), "") + filename + "EDIT.json");
                     VerboseServices.LogVerboseLine(verbose, $">>> Successfully created output hub on {stateId} to {count} boxes.");
                 }
                 catch (Exception ex)
@@ -118,6 +105,23 @@ namespace BuilderUtils.Services
             }
         }
 
+        public void CreateOutputHub()
+        {
+            Console.Title = "[BLiP Builder Utils] Creating Output Hub";
+            Console.WriteLine("What is the ID (state.id) of the flow you want to use as a HUB?");
+            var stateId = Console.ReadLine();
+            Console.WriteLine("What is the variable name to be used as the EQUALS conditional?");
+            var conditionalVariable = Console.ReadLine();
+            Console.WriteLine("What is the FULL PATH of the exported .json file?");
+            var path = Console.ReadLine();
+            AddUniversalHubUsingVariable(stateId, conditionalVariable, path);
+        }
+
+        public void CreateOutputHub(bool verbose, string stateId, string conditionalVariable, string path)
+        {
+            AddUniversalHubUsingVariable(stateId, conditionalVariable, path, verbose);
+        }
+        
         public static JObject GetBuilderFlow(string path)
         {
             return JsonConvert.DeserializeObject<JObject>(File.ReadAllText(path));
@@ -192,18 +196,7 @@ namespace BuilderUtils.Services
                 }
             }
 
-            var serialized = string.Empty;
-            foreach (var box in flow.Boxes)
-            {
-                var piece = JsonConvert.SerializeObject(box.Content);
-                serialized = serialized + piece.Substring(1, piece.Length - 2) + ",";
-            }
-
-            serialized = "{" + serialized.Substring(0, serialized.Length - 1) + "}";
-
-            path = $"{Path.GetDirectoryName(path)}\\flow.json";
-            Console.WriteLine(path);
-            System.IO.File.WriteAllText(path, serialized);
+            SaveUpdatedFlow(flow, path, $"{Path.GetDirectoryName(path)}\\flow.json");
         }
     }
 }
